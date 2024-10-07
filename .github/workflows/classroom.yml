@@ -30,7 +30,7 @@ jobs:
       with:
         test-name: Mix Colors Test
         id: mix-colors-test
-        command: pytest -v test_color_mixer.py::test_mix_colors
+        command: pytest -v test_color_mixer.py::TestColorMixer::test_mix_colors
         comparison-method: contains
         expected-output: "3 passed"
         timeout: 10
@@ -40,7 +40,7 @@ jobs:
       with:
         test-name: Lighten Color Test
         id: lighten-color-test
-        command: pytest -v test_color_mixer.py::test_lighten_color
+        command: pytest -v test_color_mixer.py::TestColorMixer::test_lighten_color
         comparison-method: contains
         expected-output: "3 passed"
         timeout: 10
@@ -50,7 +50,7 @@ jobs:
       with:
         test-name: Darken Color Test
         id: darken-color-test
-        command: pytest -v test_color_mixer.py::test_darken_color
+        command: pytest -v test_color_mixer.py::TestColorMixer::test_darken_color
         comparison-method: contains
         expected-output: "3 passed"
         timeout: 10
@@ -60,7 +60,7 @@ jobs:
       with:
         test-name: Invalid Inputs Test
         id: invalid-inputs-test
-        command: pytest -v test_color_mixer.py::test_invalid_inputs
+        command: pytest -v test_color_mixer.py::TestColorMixer::test_invalid_inputs
         comparison-method: contains
         expected-output: "3 passed"
         timeout: 10
@@ -80,7 +80,7 @@ jobs:
       with:
         test-name: Docstrings Check
         id: docstrings-check
-        command: python -c "import color_mixer; print(all(func.__doc__ for func in [color_mixer.ColorMixer.mix_colors, color_mixer.ColorMixer.lighten_color, color_mixer.ColorMixer.darken_color]))"
+        command: python -c "from color_mixer import ColorMixer; print(all(func.__doc__ for func in [ColorMixer.mix_colors, ColorMixer.lighten_color, ColorMixer.darken_color]))"
         expected-output: "True"
         comparison-method: exact
         timeout: 10
