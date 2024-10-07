@@ -13,7 +13,7 @@
     {
       "name": "Run tests for mix_colors function",
       "setup": "",
-      "run": "python -m unittest test_color_functions.TestColorFunctions.test_mix_colors",
+      "run": "pytest test_color_mixer.py::TestColorMixer::test_mix_colors",
       "input": "",
       "output": "",
       "comparison": "included",
@@ -23,7 +23,7 @@
     {
       "name": "Run tests for lighten_color function",
       "setup": "",
-      "run": "python -m unittest test_color_functions.TestColorFunctions.test_lighten_color",
+      "run": "pytest test_color_mixer.py::TestColorMixer::test_lighten_color",
       "input": "",
       "output": "",
       "comparison": "included",
@@ -33,7 +33,7 @@
     {
       "name": "Run tests for darken_color function",
       "setup": "",
-      "run": "python -m unittest test_color_functions.TestColorFunctions.test_darken_color",
+      "run": "pytest test_color_mixer.py::TestColorMixer::test_darken_color",
       "input": "",
       "output": "",
       "comparison": "included",
@@ -43,7 +43,7 @@
     {
       "name": "Check for invalid input handling",
       "setup": "",
-      "run": "python -m unittest test_color_functions.TestColorFunctions.test_invalid_inputs",
+      "run": "pytest test_color_mixer.py::TestColorMixer::test_invalid_inputs",
       "input": "",
       "output": "",
       "comparison": "included",
@@ -53,7 +53,7 @@
     {
       "name": "Check for docstrings",
       "setup": "",
-      "run": "python -c \"import color_functions; assert all(func.__doc__ for func in [color_functions.mix_colors, color_functions.lighten_color, color_functions.darken_color]), 'Missing docstrings'\"",
+      "run": "python -c \"from color_mixer import ColorMixer; assert all(func.__doc__ for func in [ColorMixer.mix_colors, ColorMixer.lighten_color, ColorMixer.darken_color]), 'Missing docstrings'\"",
       "input": "",
       "output": "",
       "comparison": "included",
