@@ -22,35 +22,30 @@ By the end of this assignment, you should be able to:
 
 ## 📝 Instructions
 
-### Step 1: Implement the ColorMixer class
+### Step 1: Understand the Requirements
 
-Open `color_mixer.py` and implement the following methods in the ColorMixer class:
+Begin by reviewing the unit tests in `test_color_mixer.py`. This will give you insights into how each method is expected to behave and highlight any potential edge cases. Use the tests as a guide to inform your implementation. Do not modify the tests.
 
-1. `mix_colors(color1, color2)`: Mix two colors and return the result.
-2. `lighten_color(color, amount)`: Lighten a color by a certain amount.
-3. `darken_color(color, amount)`: Darken a color by a certain amount.
+### Step 2: Implement the ColorMixer Class
 
-### Step 2: Review the unit tests
+Open `color_mixer.py` and implement the following methods within the ColorMixer class:
 
-Before implementing the ColorMixer class, take a moment to review the tests in `test_color_mixer.py`. This will give you a clear understanding of what each method should do and what edge cases to consider. Don't modify the tests, but use them as a guide for your implementation.
+`mix_colors(color1, color2)`:
+Combine two colors and return the resulting mixed color.
 
-### Step 3: Implement the ColorMixer class
+`lighten_color(color, amount)`:
+Increase the brightness of the provided color by the specified amount.
 
-Now, open `color_mixer.py` and implement the following methods in the ColorMixer class:
+`darken_color(color, amount)`:
+Decrease the brightness of the given color by the specified amount.
 
-1. `mix_colors(color1, color2)`: Mix two colors and return the result.
-2. `lighten_color(color, amount)`: Lighten a color by a certain amount.
-3. `darken_color(color, amount)`: Darken a color by a certain amount.
-
-Use the tests as a guide for your implementation, ensuring that your methods will pass all the provided tests.
-
-### Step 4: Debug and improve your implementation
+### Step 3: Debug and improve your implementation
 
 1. If any tests fail, read the error messages carefully.
 2. Go back to `color_mixer.py`, revise your code, and try again.
 3. Repeat steps 3 and 4 until all tests pass.
 
-### Step 5: Practice Test-Driven Development
+### Step 4: Practice Test-Driven Development
 
 1. Think of a new feature or edge case for the ColorMixer class.
 2. Write a new test in `test_color_mixer.py` for this feature or case.
