@@ -1,7 +1,6 @@
 name: Autograding Tests
 on:
   - push
-  - workflow_dispatch
   - repository_dispatch
 permissions:
   checks: write
@@ -12,85 +11,50 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'github-classroom[bot]'
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.x'
+      - name: Mix colors test
+        id: mix-test
+        uses: classroom-resources/autograding-python-grader@v1
+        with:
+          timeout: 10
+          max-score: 2.5
+          setup-command: |
+            python -m pip install --upgrade pip
+            pip install pytest
+          test-command: pytest test_color_mixer.py::test_mix_colors -v
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install pytest
+      - name: Lighten color test
+        id: lighten-test
+        uses: classroom-resources/autograding-python-grader@v1
+        with:
+          timeout: 10
+          max-score: 2.5
+          test-command: pytest test_color_mixer.py::test_lighten_color -v
 
-    - name: Run mix_colors tests
-      uses: classroom-resources/autograding-io-grader@v1
-      with:
-        test-name: Mix Colors Test
-        id: mix-colors-test
-        command: pytest -v test_color_mixer.py::TestColorMixer::test_mix_colors
-        comparison-method: contains
-        expected-output: "3 passed"
-        timeout: 10
+      - name: Darken color test
+        id: darken-test
+        uses: classroom-resources/autograding-python-grader@v1
+        with:
+          timeout: 10
+          max-score: 2.5
+          test-command: pytest test_color_mixer.py::test_darken_color -v
 
-    - name: Run lighten_color tests
-      uses: classroom-resources/autograding-io-grader@v1
-      with:
-        test-name: Lighten Color Test
-        id: lighten-color-test
-        command: pytest -v test_color_mixer.py::TestColorMixer::test_lighten_color
-        comparison-method: contains
-        expected-output: "3 passed"
-        timeout: 10
+      - name: Implementation check
+        id: impl-test
+        uses: classroom-resources/autograding-python-grader@v1
+        with:
+          timeout: 10
+          max-score: 2.5
+          test-command: pytest test_color_mixer.py::test_implementation -v
 
-    - name: Run darken_color tests
-      uses: classroom-resources/autograding-io-grader@v1
-      with:
-        test-name: Darken Color Test
-        id: darken-color-test
-        command: pytest -v test_color_mixer.py::TestColorMixer::test_darken_color
-        comparison-method: contains
-        expected-output: "3 passed"
-        timeout: 10
-
-    - name: Run invalid inputs tests
-      uses: classroom-resources/autograding-io-grader@v1
-      with:
-        test-name: Invalid Inputs Test
-        id: invalid-inputs-test
-        command: pytest -v test_color_mixer.py::TestColorMixer::test_invalid_inputs
-        comparison-method: contains
-        expected-output: "3 passed"
-        timeout: 10
-
-    - name: Run all tests
-      uses: classroom-resources/autograding-io-grader@v1
-      with:
-        test-name: All Tests
-        id: all-tests
-        command: pytest -v test_color_mixer.py
-        comparison-method: contains
-        expected-output: "12 passed"
-        timeout: 30
-
-    - name: Check for docstrings
-      uses: classroom-resources/autograding-io-grader@v1
-      with:
-        test-name: Docstrings Check
-        id: docstrings-check
-        command: python -c "from color_mixer import ColorMixer; print(all(func.__doc__ for func in [ColorMixer.mix_colors, ColorMixer.lighten_color, ColorMixer.darken_color]))"
-        expected-output: "True"
-        comparison-method: exact
-        timeout: 10
-
-    - name: Autograding Reporter
-      uses: classroom-resources/autograding-grading-reporter@v1
-      env:
-        MIX_COLORS_TEST_RESULTS: "${{ steps.mix-colors-test.outputs.result }}"
-        LIGHTEN_COLOR_TEST_RESULTS: "${{ steps.lighten-color-test.outputs.result }}"
-        DARKEN_COLOR_TEST_RESULTS: "${{ steps.darken-color-test.outputs.result }}"
-        INVALID_INPUTS_TEST_RESULTS: "${{ steps.invalid-inputs-test.outputs.result }}"
-        ALL_TESTS_RESULTS: "${{ steps.all-tests.outputs.result }}"
-        DOCSTRINGS_CHECK_RESULTS: "${{ steps.docstrings-check.outputs.result }}"
+      - name: Autograding Reporter
+        uses: classroom-resources/autograding-grading-reporter@v1
+        env:
+          MIX-TEST_RESULTS: "${{ steps.mix-test.outputs.result }}"
+          LIGHTEN-TEST_RESULTS: "${{ steps.lighten-test.outputs.result }}"
+          DARKEN-TEST_RESULTS: "${{ steps.darken-test.outputs.result }}"
+          IMPL-TEST_RESULTS: "${{ steps.impl-test.outputs.result }}"
+        with:
+          runners: mix-test,lighten-test,darken-test,impl-test
