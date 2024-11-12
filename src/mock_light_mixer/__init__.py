@@ -1,2 +1,2 @@
 """Mock function that  gets installed by requirements.txt"""
-from mock_light_mixer._mock_light_mixer import LightMixer
+from color_matching._color_matching import grid_color_search, random_color_search
