@@ -1,205 +1,55 @@
 import numpy as np
-from sklearn.metrics import mean_absolute_error
 
+class MockLightMixer:
+    def __init__(self):
+        # Define the light characteristics matrix
+        # Each row represents how a light contributes to R, G, B components
+        self.light_matrix = np.array([
+            [0.8, 0.2, 0.1],  # Light 1: mainly red
+            [0.1, 0.9, 0.2],  # Light 2: mainly green
+            [0.1, 0.2, 0.8],  # Light 3: mainly blue
+        ])
 
-class LightMixer:
-    """
-    A class to simulate a light mixer that combines red, green, and blue LEDs at
-    different power levels to produce different colors.
-
-    The class can run a color experiment, which calculates sensor intensity
-    values for different wavelengths based on the power levels of the LEDs. It
-    can also calculate an objective function value for a given sensor data,
-    defined as the mean absolute error between the given sensor data and the
-    target sensor data.
-
-    Attributes
-    ----------
-    noise : float
-        The level of noise to add to the sensor data. This simulates real-world
-        inaccuracies in the sensor readings.
-    rng : numpy.random.Generator
-        A random number generator instance from numpy.
-    wavelengths : list of int
-        The wavelengths at which the sensor intensity is calculated.
-    red_coefficients : list of float
-        Coefficients for how the red LED affects the sensor intensity at each
-        wavelength.
-    green_coefficients : list of float
-        Coefficients for how the green LED affects the sensor intensity at each
-        wavelength.
-    blue_coefficients : list of float
-        Coefficients for how the blue LED affects the sensor intensity at each
-        wavelength.
-    target_color : dict
-        The target color, defined as a dictionary with keys 'R', 'G', 'B' and
-        values as the power levels of the LEDs.
-    target_sensor_data : dict
-        The sensor intensity values at different wavelengths for the target
-        color.
-
-    Methods
-    -------
-    run_color_experiment(R, G, B):
-        Calculate sensor intensity values for different wavelengths based on the
-        power levels of red, green, and blue LEDs.
-    calculate_objective(sensor_data):
-        Calculates the objective function value for a given sensor data.
-    calculate_rgb_mismatch(R, G, B):
-        Calculate the mismatch between the target color and the actual color
-        based on the power levels of red, green, and blue LEDs.
-    """
-
-    def __init__(self, target_color={"R": 255, "G": 127, "B": 63}, noise=0.1):
-        self._history = []  # for testing
-        self.noise = noise
-        self.rng = np.random.default_rng(42)
-
-        # Define the wavelengths
-        self.wavelengths = [410, 440, 470, 510, 550, 583, 620, 670]
-        self.wavelength_names = [f"ch{wavelength}" for wavelength in self.wavelengths]
-
-        # Coefficients for how each LED affects the sensor intensity at each wavelength, adjusted for typical color wavelengths
-
-        # Stronger influence at longer wavelengths (red)
-        self.red_coefficients = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.9, 1.0]
-
-        # Stronger influence in the middle wavelengths (green)
-        self.green_coefficients = [0.2, 0.4, 0.6, 0.8, 1.0, 0.8, 0.4, 0.2]
-
-        # Stronger influence at shorter wavelengths (blue)
-        self.blue_coefficients = [0.9, 1.0, 0.8, 0.6, 0.4, 0.2, 0.1, 0.0]
-
-        self.target_color = target_color
-
-        self.target_sensor_data = self.run_color_experiment(**self.target_color)
-
-        # needs to be after target_sensor_data is defined, to check more than
-        # just object instantiation
-        self._run_color_experiment_called = False  # for testing
-
-        self._calculate_objective_called = False  # for testing
-
-    def run_color_experiment(self, R, G, B):
+    def mix_lights(self, intensities):
         """
-        Calculate sensor intensity values for different wavelengths based on the
-        power levels of red, green, and blue LEDs, taking into account the
-        typical wavelengths of red, green, and blue light.
-
-        Parameters
-        ----------
-        R : int
-            Power level of the red LED (0-255).
-        G : int
-            Power level of the green LED (0-255).
-        B : int
-            Power level of the blue LED (0-255).
-
-        Returns
-        -------
-        dict
-            Sensor intensity values at different wavelengths. The keys are
-            strings of the form 'ch{wavelength}', and the values are the
-            calculated intensities.
-
-        Examples
-        --------
-        >>> mixer = LightMixer()
-        >>> mixer.run_color_experiment(255, 127, 63)
-        {
-            "ch410": 102.2,
-            "ch440": 220.4,
-            "ch470": 225.6,
-            "ch510": 178.8,
-            "ch550": 191.6,
-            "ch583": 204.4,
-            "ch620": 217.2,
-            "ch670": 230.0,
-        }
+        Mix lights according to given intensities.
+        
+        Args:
+            intensities: List or array of 3 values between 0 and 1
+                       representing the intensity of each light
+        
+        Returns:
+            Array of RGB values representing the mixed color
         """
-        # Calculate sensor intensity for each wavelength
-        sensor_data = {}
-        for i, wavelength_name in enumerate(self.wavelength_names):
-            intensity = (
-                self.red_coefficients[i] * R
-                + self.green_coefficients[i] * G
-                + self.blue_coefficients[i] * B
-            )
-            # Add noise
-            intensity = self.rng.normal(intensity, self.noise * intensity)
-            sensor_data[wavelength_name] = intensity
+        # Convert intensities to numpy array if needed
+        intensities = np.array(intensities)
+        
+        # Ensure intensities are in valid range
+        if not np.all((0 <= intensities) & (intensities <= 1)):
+            raise ValueError("Light intensities must be between 0 and 1")
+        
+        # Calculate the resulting color
+        mixed_color = np.dot(intensities, self.light_matrix)
+        
+        # Ensure no component exceeds 1
+        mixed_color = np.clip(mixed_color, 0, 1)
+        
+        return mixed_color
 
-        self._history.append({"R": R, "G": G, "B": B, **sensor_data})
-
-        self._run_color_experiment_called = True  # for testing
-
-        return sensor_data
-
-    def calculate_objective(self, sensor_data):
+    def get_mixed_color(self, intensities):
         """
-        Calculates the objective function value for a given sensor data. The
-        objective function is defined as the mean absolute error between the
-        given sensor data and the target sensor data.
-
-        Parameters
-        ----------
-        sensor_data : dict
-            A dictionary containing the sensor intensity values at different
-            wavelengths. The keys are strings of the form 'ch{wavelength}', and
-            the values are the calculated intensities.
-
-        Returns
-        -------
-        float
-            The mean absolute error between the given sensor data and the target
-            sensor data.
-
-        Examples
-        --------
-        >>> sensor_data = {
-        ...     "ch410": 102.2,
-        ...     "ch440": 220.4,
-        ...     "ch470": 225.6,
-        ...     "ch510": 178.8,
-        ...     "ch550": 191.6,
-        ...     "ch583": 204.4,
-        ...     "ch620": 217.2,
-        ...     "ch670": 230.0,
-        ... }
-        >>> mixer.calculate_objective(sensor_data)
-        15.8  # hypothetical output
+        Get the RGB color values (0-255) for given light intensities.
+        
+        Args:
+            intensities: List or array of 3 values between 0 and 1
+        
+        Returns:
+            List of RGB values (0-255)
         """
-        score = mean_absolute_error(
-            [sensor_data[k] for k in sorted(sensor_data)], 
-            [self.target_sensor_data[k] for k in sorted(self.target_sensor_data)]
-        )
-        self._calculate_objective_called = True  # for testing
-        return score
-
-    def calculate_rgb_mismatch(self, R, G, B):
-        """
-        Calculate the mismatch between the target color and the actual color
-        based on the power levels of red, green, and blue LEDs.
-
-        Parameters
-        ----------
-        R : int
-            Power level of the red LED (0-255).
-        G : int
-            Power level of the green LED (0-255).
-        B : int
-            Power level of the blue LED (0-255).
-
-        Returns
-        -------
-        float
-            A score to be minimized that represents the mismatch between the
-            desired color and the actual color.
-
-        Examples
-        --------
-        >>> mixer = LightMixer()
-        >>> mixer.calculate_rgb_mismatch(255, 127, 63)
-        12345.67
-        """
-        return mean_absolute_error(list(self.target_color.values()), [R, G, B])
+        # Mix the lights
+        mixed_color = self.mix_lights(intensities)
+        
+        # Convert to 0-255 range and round to integers
+        rgb_color = np.round(mixed_color * 255).astype(int)
+        
+        return rgb_color.tolist()
