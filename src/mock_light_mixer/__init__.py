@@ -1,2 +1,4 @@
 """Mock function that  gets installed by requirements.txt"""
-from color_matching._color_matching import grid_color_search, random_color_search
+from ._mock_light_mixer import MockLightMixer
+
+__all__ = ['MockLightMixer']
