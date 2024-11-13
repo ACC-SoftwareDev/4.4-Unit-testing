@@ -1,7 +1,7 @@
 name: Autograding Tests
-on:
+'on':
   - push
-  - repository_dispatch
+  - workflow_dispatch
 permissions:
   checks: write
   actions: read
@@ -14,47 +14,13 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Mix colors test
-        id: mix-test
+      - name: Color mixer test
+        id: color-test
         uses: classroom-resources/autograding-python-grader@v1
         with:
           timeout: 10
-          max-score: 2.5
+          max-score: 10
           setup-command: |
-            python -m pip install --upgrade pip
-            pip install pytest
-          test-command: pytest test_color_mixer.py::test_mix_colors -v
-
-      - name: Lighten color test
-        id: lighten-test
-        uses: classroom-resources/autograding-python-grader@v1
-        with:
-          timeout: 10
-          max-score: 2.5
-          test-command: pytest test_color_mixer.py::test_lighten_color -v
-
-      - name: Darken color test
-        id: darken-test
-        uses: classroom-resources/autograding-python-grader@v1
-        with:
-          timeout: 10
-          max-score: 2.5
-          test-command: pytest test_color_mixer.py::test_darken_color -v
-
-      - name: Implementation check
-        id: impl-test
-        uses: classroom-resources/autograding-python-grader@v1
-        with:
-          timeout: 10
-          max-score: 2.5
-          test-command: pytest test_color_mixer.py::test_implementation -v
-
-      - name: Autograding Reporter
-        uses: classroom-resources/autograding-grading-reporter@v1
-        env:
-          MIX-TEST_RESULTS: "${{ steps.mix-test.outputs.result }}"
-          LIGHTEN-TEST_RESULTS: "${{ steps.lighten-test.outputs.result }}"
-          DARKEN-TEST_RESULTS: "${{ steps.darken-test.outputs.result }}"
-          IMPL-TEST_RESULTS: "${{ steps.impl-test.outputs.result }}"
-        with:
-          runners: mix-test,lighten-test,darken-test,impl-test
+            sudo -H pip3 install pytest
+            sudo -H pip3 install numpy
+          test-command: pytest test_color_mixer.py -v
